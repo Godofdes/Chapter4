@@ -45,7 +45,8 @@ public class Solution2C1Activity extends AppCompatActivity {
             @Override
             public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
                 ImageView iv = (ImageView) viewHolder.itemView;
-
+                String url = mCats.get(i).getUrl();
+                Glide.with(iv.getContext()).load(url).into(iv);
                 // TODO-C1 (4) Uncomment these 2 lines, assign image url of Cat to this url variable
 //                String url = mCats.get(i).;
 //                Glide.with(iv.getContext()).load(url).into(iv);
@@ -66,6 +67,24 @@ public class Solution2C1Activity extends AppCompatActivity {
     public void requestData(View view) {
         mBtn.setText(R.string.requesting);
         mBtn.setEnabled(false);
+        Retrofit catRetrofit = new Retrofit.Builder()
+                .baseUrl("https://api.thecatapi.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        catRetrofit.create(ICatService.class).randomCat(5).enqueue(new Callback<List<Cat>>() {
+            @Override
+            public void onResponse(Call<List<Cat>> call, Response<List<Cat>> response) {
+
+                    restoreBtn();
+                    loadPics(response.body());
+
+            }
+            @Override
+            public void onFailure(Call<List<Cat>> call, Throwable t) {
+                restoreBtn();
+            }
+        });
+
 
         // TODO-C1 (3) Send request for 5 random cats here, don't forget to use {@link retrofit2.Call#enqueue}
         // Call restoreBtn() and loadPics(response.body()) if success
